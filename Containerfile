@@ -39,7 +39,7 @@ ENV DRACUT_NO_XATTR=1
 
 
 
-RUN pacman -Syyu -- noconfirm
+RUN pacman -Syyu --noconfirm
 
 RUN pacman -S --noconfirm \
       base \
