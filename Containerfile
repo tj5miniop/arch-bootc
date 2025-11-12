@@ -1,4 +1,8 @@
-FROM docker.io/archlinux/archlinux:latest
+FROM docker.io/cachyos/cachyos-v3:latest
+
+ENV DEV_DEPS="base-devel git rust"
+
+ENV DRACUT_NO_XATTR=1
 
 RUN pacman -Sy --noconfirm \
       base \
