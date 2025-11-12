@@ -69,7 +69,7 @@ RUN pacman -S --noconfirm \
       flameshot \
       cachyos-rate-mirrors \
       shadow && \
-RUN systemctl enable sddm && sudo cachyos-rate-mirrors
+      systemctl enable sddm && sudo cachyos-rate-mirrors
 
 # Regression with newer dracut broke this
 RUN mkdir -p /etc/dracut.conf.d && \
