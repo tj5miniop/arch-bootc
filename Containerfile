@@ -3,7 +3,8 @@ FROM docker.io/archlinux/archlinux:latest
 RUN pacman -Sy --noconfirm \
       base \
       dracut \
-      linux \
+      linux-zen \
+      linux-zen-headers \
       linux-firmware \
       ostree \
       btrfs-progs \
@@ -15,6 +16,10 @@ RUN pacman -Sy --noconfirm \
       dbus-glib \
       glib2 \
       ostree \
+      fastfetch \
+      distrobox \
+      podman \
+      flatpak \
       shadow && \
   pacman -S --clean --noconfirm && \
   rm -rf /var/cache/pacman/pkg/*
