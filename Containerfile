@@ -67,11 +67,10 @@ RUN pacman -S --noconfirm \
       firefox \
       obs-studio \
       flameshot \
+      cachyos-rate-mirrors \
       shadow && \
-  pacman -S --clean --noconfirm && \
-  rm -rf /var/cache/pacman/pkg/*
-
 RUN systemctl enable sddm
+RUN sudo cachyos-rate-mirrors
 
 # Regression with newer dracut broke this
 RUN mkdir -p /etc/dracut.conf.d && \
