@@ -1,5 +1,34 @@
 FROM docker.io/cachyos/cachyos-v3:latest
 
+
+# Credit Goes to Xenia OS for a great starting point! 
+
+#Set up CachyOS repo just in case
+RUN pacman-key --recv-key F3B607488DB35A47 --keyserver keyserver.ubuntu.com
+
+RUN pacman-key --init && pacman-key --lsign-key F3B607488DB35A47
+
+RUN pacman -U 'https://mirror.cachyos.org/repo/x86_64/cachyos/cachyos-keyring-20240331-1-any.pkg.tar.zst' --noconfirm
+
+RUN pacman -U 'https://mirror.cachyos.org/repo/x86_64/cachyos/cachyos-v3-mirrorlist-22-1-any.pkg.tar.zst' --noconfirm
+
+RUN echo -e 'Include = /etc/pacman.d/cachyos-v3-mirrorlist' >> /etc/pacman.conf
+
+# Set it up such that pacman will automatically clean package cache after each install
+# So that we don't run out of memory in image generation
+RUN echo -e "[Trigger]\n\
+    Operation = Install\n\
+    Operation = Upgrade\n\
+    Type = Package\n\
+    Target = *\n\
+    \n\
+    [Action]\n\
+    Description = Cleaning up package cache...\n\
+    Depends = coreutils\n\
+    When = PostTransaction\n\
+    Exec = /usr/bin/rm -rf /var/cache/pacman/pkg\n" | tee /usr/share/libalpm/hooks/package-cleanup.hook
+
+
 ENV DEV_DEPS="base-devel git rust"
 
 ENV DRACUT_NO_XATTR=1
@@ -7,8 +36,7 @@ ENV DRACUT_NO_XATTR=1
 RUN pacman -Sy --noconfirm \
       base \
       dracut \
-      linux-zen \
-      linux-zen-headers \
+      linux-cachyos \
       linux-firmware \
       ostree \
       btrfs-progs \
@@ -24,9 +52,24 @@ RUN pacman -Sy --noconfirm \
       distrobox \
       podman \
       flatpak \
+      paru \
       shadow && \
   pacman -S --clean --noconfirm && \
   rm -rf /var/cache/pacman/pkg/*
+
+# install packages using paru 
+
+RUN paru -Syyu mesa sddm plasma-desktop plasma-meta firefox
+RUN systemctl enable sddm
+
+
+
+
+
+
+
+
+
 
 # Regression with newer dracut broke this
 RUN mkdir -p /etc/dracut.conf.d && \
