@@ -44,7 +44,7 @@ RUN pacman -Sy --noconfirm \
 
 # install packages using paru 
 
-RUN paru -Syyu mesa sddm plasma-desktop plasma-meta firefox
+RUN paru -Sy & paru -S mesa sddm plasma-desktop plasma-meta firefox
 RUN systemctl enable sddm
 
 
