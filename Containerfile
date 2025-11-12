@@ -18,7 +18,10 @@ ENV DEV_DEPS="base-devel git rust"
 
 ENV DRACUT_NO_XATTR=1
 
-RUN pacman -Sy --noconfirm \
+RUN pacman -Syyu
+
+
+RUN pacman -S --noconfirm \
       base \
       dracut \
       linux-cachyos \
