@@ -14,21 +14,6 @@ RUN pacman -U 'https://mirror.cachyos.org/repo/x86_64/cachyos/cachyos-v3-mirrorl
 
 RUN echo -e 'Include = /etc/pacman.d/cachyos-v3-mirrorlist' >> /etc/pacman.conf
 
-# Set it up such that pacman will automatically clean package cache after each install
-# So that we don't run out of memory in image generation
-RUN echo -e "[Trigger]\n\
-    Operation = Install\n\
-    Operation = Upgrade\n\
-    Type = Package\n\
-    Target = *\n\
-    \n\
-    [Action]\n\
-    Description = Cleaning up package cache...\n\
-    Depends = coreutils\n\
-    When = PostTransaction\n\
-    Exec = /usr/bin/rm -rf /var/cache/pacman/pkg\n" | tee /usr/share/libalpm/hooks/package-cleanup.hook
-
-
 ENV DEV_DEPS="base-devel git rust"
 
 ENV DRACUT_NO_XATTR=1
