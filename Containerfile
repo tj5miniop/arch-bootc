@@ -1,18 +1,50 @@
+FROM docker.io/cachyos/cachyos-v3:latest
 
-FROM docker.io/archlinux/archlinux:latest
+
+
+
+
 # Credit Goes to Xenia OS for a great starting point! 
+
+
+
+#Set up CachyOS repo just in case
+
+RUN pacman-key --recv-key F3B607488DB35A47 --keyserver keyserver.ubuntu.com
+
+
+
+RUN pacman-key --init && pacman-key --lsign-key F3B607488DB35A47
+
+
+
+RUN pacman -U 'https://mirror.cachyos.org/repo/x86_64/cachyos/cachyos-keyring-20240331-1-any.pkg.tar.zst' --noconfirm
+
+
+
+RUN pacman -U 'https://mirror.cachyos.org/repo/x86_64/cachyos/cachyos-v3-mirrorlist-22-1-any.pkg.tar.zst' --noconfirm
+
+
+
+RUN echo -e 'Include = /etc/pacman.d/cachyos-v3-mirrorlist' >> /etc/pacman.conf
+
+
 
 ENV DEV_DEPS="base-devel git rust"
 
+
+
 ENV DRACUT_NO_XATTR=1
 
-RUN pacman -Syyu
 
+
+
+RUN pacman -Syyu -- noconfirm
 
 RUN pacman -S --noconfirm \
       base \
       dracut \
-      linux-zen \
+      linux-cachyos \
       linux-firmware \
       ostree \
       btrfs-progs \
@@ -29,18 +61,22 @@ RUN pacman -S --noconfirm \
       podman \
       flatpak \
       paru \
+      mesa \
+      sddm \
+      plasma \
+      firefox \
+      obs-studio \
+      flameshot \
       shadow && \
   pacman -S --clean --noconfirm && \
   rm -rf /var/cache/pacman/pkg/*
 
-# install packages using paru 
-
-RUN paru -Sy & paru -S mesa sddm plasma firefox obs-studio flameshot
 RUN systemctl enable sddm
 
 # Regression with newer dracut broke this
 RUN mkdir -p /etc/dracut.conf.d && \
     printf "systemdsystemconfdir=/etc/systemd/system\nsystemdsystemunitdir=/usr/lib/systemd/system\n" | tee /etc/dracut.conf.d/fix-bootc.conf
+
 
 RUN --mount=type=tmpfs,dst=/tmp --mount=type=tmpfs,dst=/root \
     pacman -S --noconfirm base-devel git rust && \
@@ -50,6 +86,8 @@ RUN --mount=type=tmpfs,dst=/tmp --mount=type=tmpfs,dst=/root \
     dracut --force --no-hostonly --reproducible --zstd --verbose --kver "$KERNEL_VERSION"  "/usr/lib/modules/$KERNEL_VERSION/initramfs.img"' && \
     pacman -Rns --noconfirm base-devel git rust && \
     pacman -S --clean --noconfirm
+
+
 
 # Necessary for general behavior expected by image-based systems
 RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
@@ -67,5 +105,6 @@ RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
 # Setup a temporary root passwd (changeme) for dev purposes
 # RUN pacman -S whois --noconfirm
 # RUN usermod -p "$(echo "changeme" | mkpasswd -s)" root
+
 
 RUN bootc container lint
