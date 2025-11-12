@@ -1,18 +1,6 @@
-FROM docker.io/cachyos/cachyos-v3:latest
 
-
+FROM docker.io/archlinux/archlinux:latest
 # Credit Goes to Xenia OS for a great starting point! 
-
-#Set up CachyOS repo just in case
-RUN pacman-key --recv-key F3B607488DB35A47 --keyserver keyserver.ubuntu.com
-
-RUN pacman-key --init && pacman-key --lsign-key F3B607488DB35A47
-
-RUN pacman -U 'https://mirror.cachyos.org/repo/x86_64/cachyos/cachyos-keyring-20240331-1-any.pkg.tar.zst' --noconfirm
-
-RUN pacman -U 'https://mirror.cachyos.org/repo/x86_64/cachyos/cachyos-v3-mirrorlist-22-1-any.pkg.tar.zst' --noconfirm
-
-RUN echo -e 'Include = /etc/pacman.d/cachyos-v3-mirrorlist' >> /etc/pacman.conf
 
 ENV DEV_DEPS="base-devel git rust"
 
@@ -24,7 +12,7 @@ RUN pacman -Syyu
 RUN pacman -S --noconfirm \
       base \
       dracut \
-      linux-cachyos \
+      linux-zen \
       linux-firmware \
       ostree \
       btrfs-progs \
@@ -49,15 +37,6 @@ RUN pacman -S --noconfirm \
 
 RUN paru -Sy & paru -S mesa sddm plasma firefox obs-studio flameshot
 RUN systemctl enable sddm
-
-
-
-
-
-
-
-
-
 
 # Regression with newer dracut broke this
 RUN mkdir -p /etc/dracut.conf.d && \
