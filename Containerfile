@@ -17,7 +17,7 @@ RUN pacman -Syyu --noconfirm
 RUN pacman -S --noconfirm \
       base \
       dracut \
-      linux-cachyos \
+      linux-cachyos-bore \
       linux-firmware \
       ostree \
       btrfs-progs \
