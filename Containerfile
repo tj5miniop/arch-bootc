@@ -1,43 +1,16 @@
 FROM docker.io/cachyos/cachyos-v3:latest
 
-
-
-
-
 # Credit Goes to Xenia OS for a great starting point! 
-
-
-
 #Set up CachyOS repo just in case
 
 RUN pacman-key --recv-key F3B607488DB35A47 --keyserver keyserver.ubuntu.com
-
-
-
 RUN pacman-key --init && pacman-key --lsign-key F3B607488DB35A47
-
-
-
 RUN pacman -U 'https://mirror.cachyos.org/repo/x86_64/cachyos/cachyos-keyring-20240331-1-any.pkg.tar.zst' --noconfirm
-
-
-
 RUN pacman -U 'https://mirror.cachyos.org/repo/x86_64/cachyos/cachyos-v3-mirrorlist-22-1-any.pkg.tar.zst' --noconfirm
-
-
-
 RUN echo -e 'Include = /etc/pacman.d/cachyos-v3-mirrorlist' >> /etc/pacman.conf
 
-
-
 ENV DEV_DEPS="base-devel git rust"
-
-
-
 ENV DRACUT_NO_XATTR=1
-
-
-
 
 RUN pacman -Syyu --noconfirm
 
@@ -67,11 +40,12 @@ RUN pacman -S --noconfirm \
       firefox \
       obs-studio \
       flameshot \
+      $(DEV_DEPS) \
       shadow && \
   pacman -S --clean --noconfirm && \
   rm -rf /var/cache/pacman/pkg/*
 
-RUN systemctl enable sddm
+RUN systemctl enable sddm && systemctl enable NetworkManager
 
 # Regression with newer dracut broke this
 RUN mkdir -p /etc/dracut.conf.d && \
@@ -100,10 +74,9 @@ RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
     echo "d /var/roothome 0700 root root -" | tee -a /usr/lib/tmpfiles.d/bootc-base-dirs.conf && \
     echo "d /run/media 0755 root root -" | tee -a /usr/lib/tmpfiles.d/bootc-base-dirs.conf && \
     printf "[composefs]\nenabled = yes\n[sysroot]\nreadonly = true\n" | tee "/usr/lib/ostree/prepare-root.conf"
-
 # Setup a temporary root passwd (changeme) for dev purposes
-# RUN pacman -S whois --noconfirm
-# RUN usermod -p "$(echo "changeme" | mkpasswd -s)" root
+RUN pacman -S whois --noconfirm
+RUN usermod -p "$(echo "changeme" | mkpasswd -s)" root
 
 
 RUN bootc container lint
